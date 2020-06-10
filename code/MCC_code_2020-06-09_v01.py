@@ -11,12 +11,7 @@ from   analogio                      import AnalogIn
 from   unit_converter.chronos        import adjust_dst
 from   cedargrove_clock_builder.repl_display    import ReplDisplay
 from   cedargrove_clock_builder.pybadge_display import PyBadgeDisplay  # PyBadge display
-# from   clock_display.led_14x4seg     import Led14x4Display  # 14-segment LED
-# from   clock_display.led_7x4seg      import Led7x4Display   # 7-segment LED
-# from   cedargrove_pypanel import *
-# print(stemma)  # show Stemma-attached device list
 from adafruit_crickit import crickit
-
 
 i2c = board.I2C()
 ds3231 = adafruit_ds3231.DS3231(i2c)
@@ -37,15 +32,7 @@ servo_1_end      = 140        # Active servo position
 servo_2_start    = 140         # Resting servo position
 servo_2_end      = 70        # Active servo position
 
-### Instatiate displays
-
-#  4-digit 14-segment LED alphanumeric display
-# led_disp = Led14x4Display(clock_zone, clock_24_hour, clock_auto_dst,
-#                           clock_sound, brightness=2, debug=False)
-
-#  4-digit 7-segment LED alphanumeric display
-# led_disp  = Led7x4Display(clock_zone, clock_24_hour, clock_auto_dst,
-#                           clock_sound, brightness=2, debug=False)
+### Instatiate display
 
 # PyBadge display
 pybadge_disp  = PyBadgeDisplay(clock_zone, clock_24_hour, clock_auto_dst,
@@ -63,16 +50,10 @@ crickit.init_neopixel(1, brightness=0.01) # must call this first
 crickit.onboard_pixel.brightness = 0.01
 crickit.onboard_pixel[0] = (0, 255, 0)  # green for startup
 
-# Change servo settings.
-# crickit.servo_1.actuation_range = 135
-# crickit.servo_1.set_pulse_width_range(min_pulse=850, max_pulse=2100)
-# crickit.servo_2.actuation_range = 135
-# crickit.servo_2.set_pulse_width_range(min_pulse=850, max_pulse=2100)
-
 # Energize the power indicator
 crickit.feather_drive_2.fraction = 0.5  # power indicator
 
-### Instatiate chimes
+### Instatiate whistle servos
 # reset servo to start position and disable
 crickit.servo_1.angle = servo_1_start
 crickit.servo_2.angle = servo_2_start
@@ -81,19 +62,18 @@ crickit.servo_1.angle = None  # disable servo
 crickit.servo_2.angle = None
 time.sleep(0.5)
 
-"""# reset servo to end position and disable (calibrate)
+"""# calibrate servos at end position and disable
 crickit.servo_1.angle = servo_1_end
 crickit.servo_2.angle = servo_2_end
 time.sleep(0.25)
 crickit.servo_1.angle = None  # disable servo
 crickit.servo_2.angle = None
 time.sleep(0.5)
-
 while True:
     pass"""
 
 ### HELPERS ###
-def chime(hour, solenoid_hold=0.05, servo_hold=0.2,
+def chime(hour, solenoid_hold=0.010, servo_hold=0.200,
           start_1=servo_1_start, end_1=servo_1_end,
           start_2=servo_2_start, end_2=servo_2_end):  # play chime and cuckoo n cycles
     crickit.servo_1.angle = start_1  # wake up servo and move to start
@@ -106,17 +86,20 @@ def chime(hour, solenoid_hold=0.05, servo_hold=0.2,
         hour = 12
 
     for i in range(0, hour):
-        crickit.servo_1.angle = end_1  # cu
-        time.sleep(servo_hold / 2)
         crickit.feather_drive_1.fraction = 1.0  # chime
         time.sleep(solenoid_hold)
         crickit.feather_drive_1.fraction = 0.0
-        time.sleep(servo_hold / 2)
+        time.sleep(servo_hold * 2)
+
+        crickit.servo_1.angle = end_1  # cu
+        time.sleep(servo_hold)
         crickit.servo_1.angle = start_1
+
         crickit.servo_2.angle = end_2    # coo
         time.sleep(servo_hold)
         crickit.servo_2.angle = start_2
         time.sleep(servo_hold)
+
     crickit.servo_1.angle = None  # disable servo
     crickit.servo_2.angle = None
     time.sleep(servo_hold)
