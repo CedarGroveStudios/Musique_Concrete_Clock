@@ -1,6 +1,6 @@
 # Musique_Concrete_Clock
 
-### An RTC-based hybrid cuckoo clock using heirloom sound components.
+### RTC-based hybrid cuckoo clock using heirloom sound components, powered by CircuitPython.
 
 Uses __CedarGroveStudios/Unit_Converter__ and __CedarGroveStudios/Clock_Builder__ custom CircuitPython libraries.
 
