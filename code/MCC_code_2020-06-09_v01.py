@@ -38,7 +38,7 @@ servo_2_end      = 70        # Active servo position
 pybadge_disp  = PyBadgeDisplay(clock_zone, clock_24_hour, clock_auto_dst,
                                clock_sound, brightness=0.5, debug=False)
 
-pybadge_disp.battery = (batt.value / 65520) * 6.
+pybadge_disp.battery = (batt.value / 65520) * 6.6
 
 #  REPL display
 repl_disp = ReplDisplay(clock_zone, clock_24_hour, clock_auto_dst,
@@ -104,9 +104,8 @@ def chime(hour, solenoid_hold=0.010, servo_hold=0.200,
     crickit.servo_2.angle = None
     time.sleep(servo_hold)
 
-crickit.onboard_pixel[0] = (255, 0, 0)  # red for chime test
-
 # test the chimes
+crickit.onboard_pixel[0] = (255, 0, 0)  # red for chime test
 chime(1)
 
 crickit.onboard_pixel[0] = (255, 24, 255)  # purple for normal operation
@@ -136,7 +135,7 @@ if "pybadge" in clock_display:
     pybadge_disp.show(current)
 
 while True:
-    if pybadge_disp.panel.button.b:
+    if pybadge_disp.panel.button.b:  # To test whistles and gong
         chime(1)
 
     # Check datetime and adjust if DST
@@ -184,9 +183,6 @@ while True:
 
         print("Battery: {:01.2f} volts".format((batt.value / 65520) * 6.6))
 
-        # Check light level and adjust display/pwr brightness
-        print(pybadge_disp.panel.light)
-
         # update PyBadge display
         if "pybadge" in clock_display:
             pybadge_disp.dst = is_dst
@@ -219,4 +215,3 @@ while True:
     prev_sec = current.tm_sec
     while current.tm_sec == prev_sec:  # wait a second before looping
         current = ds3231.datetime
-        
